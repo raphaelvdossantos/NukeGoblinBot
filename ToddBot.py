@@ -90,8 +90,10 @@ async def show_spell_list(show_spells, caster='all', level: str = '1'):
         if (caster in s['level']) and (s['level'][caster] == int(level)):
             response.append(s['name'])
         else:
-            response.append("no spell found.")
-            break
+            pass
+
+    if len(response) == 0:
+        response.append("no spell found.")
 
     await show_spells.send('Spells: ' + str('\n'.join(response)))
 

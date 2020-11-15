@@ -1,1 +1,1 @@
-worker: python ToddBot.py
+worker: python3 ToddBot.py
