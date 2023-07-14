@@ -2,14 +2,23 @@ import os
 import random
 import json
 
+import requests
+
+import discord
+
 from discord.ext import commands
 from dotenv import load_dotenv
+
+intents = discord.Intents.default()
+intents.message_content = True
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_KEY')
 GUILD = os.getenv('DISCORD_GUILD')
 
-bot = commands.Bot(command_prefix='!')
+api_endpoint = "https://www.dnd5eapi.co/"
+
+bot = commands.Bot(command_prefix='!', intents=intents)
 
 
 @bot.event
@@ -81,21 +90,11 @@ async def roll_luck(luck):
 
 
 @bot.command(name='spells', help='Show a list of spells of a given class at a given level (default:1).')
-async def show_spell_list(show_spells, caster='all', level: str = '1'):
-    with open('./spells.json') as spell_list:
-        spells = json.loads(spell_list.read())
-    response = []
+async def show_spell_list(show_spells, level: str = '1', school = ''):
+    query = "&school=" + school if school !="" else ""
+    spells = await requests.get(api_endpoint + f'spells?level={level}{query}')
 
-    for s in spells['spells']:
-        if (caster in s['level']) and (s['level'][caster] == int(level)):
-            response.append(s['name'])
-        else:
-            pass
-
-    if len(response) == 0:
-        response.append("no spell found.")
-
-    await show_spells.send('Spells: ' + str('\n'.join(response)))
+    await show_spells.send('Spells: ' + str('\n'.join(spells)))
 
 
 @bot.command(name='rspell', help='Shows a random spell of a given class and level (both required).')
