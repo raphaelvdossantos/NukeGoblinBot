@@ -16,7 +16,7 @@ load_dotenv()
 TOKEN = os.getenv('DISCORD_KEY')
 GUILD = os.getenv('DISCORD_GUILD')
 
-api_endpoint = "https://www.dnd5eapi.co/"
+api_endpoint = "https://www.dnd5eapi.co/api/"
 
 bot = commands.Bot(command_prefix='!', intents=intents)
 
@@ -88,13 +88,28 @@ async def roll_percent(percent):
 async def roll_luck(luck):
     await luck.send('The coin flipped ' + random.choice(['heads', 'tail']))
 
+def format_spell_list_message(spells = [], level = "1", school = ""):
+    spells_count = len(spells)
+    ordered_level = f"{level}{'st' if int(level) == 1 else 'nd' if int(level) == 2 else 'rd' if int(level )== 3 else 'th'}"
+    school = f"from the {school} school " if school != "" else ""
+    level = f"of {ordered_level} level"
+    message = f"There's a total of {spells_count} {'spells' if spells_count > 1 else 'spell'} {school}{level}:\n" + str('\n'.join(spells))
 
-@bot.command(name='spells', help='Show a list of spells of a given class at a given level (default:1).')
-async def show_spell_list(show_spells, level: str = '1', school = ''):
-    query = "&school=" + school if school !="" else ""
-    spells = await requests.get(api_endpoint + f'spells?level={level}{query}')
+    return message
 
-    await show_spells.send('Spells: ' + str('\n'.join(spells)))
+@bot.command(name='spells', help='Show a list of spells of a given level (default:1) from a given school.')
+async def show_spell_list(show_spells, level: str = '1', school=''):
+    query = "&school=" + school if school != "" else ""
+    response = requests.get(api_endpoint + f'spells?level={level}{query}')
+    spells = response.json()
+
+    spell_list = []
+    print("Spells: ", spells['results'])
+
+    for spell in spells['results']:
+        spell_list.append(spell['name'])
+
+    await show_spells.send(format_spell_list_message(spell_list, level, school))
 
 
 @bot.command(name='rspell', help='Shows a random spell of a given class and level (both required).')
