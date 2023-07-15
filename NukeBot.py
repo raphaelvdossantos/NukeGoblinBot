@@ -111,6 +111,21 @@ async def show_spell_list(show_spells, level: str = '1', school=''):
 
     await show_spells.send(format_spell_list_message(spell_list, level, school))
 
+@bot.command(name="spell", help="Displays information of a given spell based on its id (spell name in lowercase, dash-separated. e.g.: disguise-self).")
+async def get_spell(get_spell, spell_id):
+    if spell_id is None:
+        await get_spell.send("Spell id not informed. Please provide a spell id consisting of the spell's name in lowercase, dash-separated. e.g.: disguise-self).")
+    else:
+        response = requests.get(api_endpoint + spell_id)
+        spell = response.json()
+
+        message = f"Name: {spell['name']} \n"
+        + f"Level: {spell['level']}     Classes: {[str(c['name'] + (',' if c['name'] != spell['classes'].at(-1)['name'] else '')) for c in spell['classes']]}"
+        + f"Range: {spell['range']}     Casting Time: {spell['casting_time']}       Duration: {spell['duration']}\n"
+        + f"Description: {spell['description']} \n"
+    
+    await get_spell.send(message)
+
 
 @bot.command(name='rspell', help='Shows a random spell of a given class and level (both required).')
 async def choose_random_spell(random_spell, caster='all', level: str = '1'):
