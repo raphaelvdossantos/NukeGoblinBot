@@ -2,12 +2,12 @@ import os
 import random
 import json
 
-import requests
-
 import discord
 
 from discord.ext import commands
 from dotenv import load_dotenv
+
+import utils
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -16,7 +16,6 @@ load_dotenv()
 TOKEN = os.getenv('DISCORD_KEY')
 GUILD = os.getenv('DISCORD_GUILD')
 
-api_endpoint = "https://www.dnd5eapi.co/api/"
 
 bot = commands.Bot(command_prefix='!', intents=intents)
 
@@ -100,8 +99,7 @@ def format_spell_list_message(spells = [], level = "1", school = ""):
 @bot.command(name='spells', help='Show a list of spells of a given level (default:1) from a given school.')
 async def show_spell_list(show_spells, level: str = '1', school=''):
     query = "&school=" + school if school != "" else ""
-    response = requests.get(api_endpoint + f'spells?level={level}{query}')
-    spells = response.json()
+    spells = utils.fetch_resource(f'spells?level={level}{query}')
 
     spell_list = []
     print("Spells: ", spells['results'])
@@ -111,35 +109,29 @@ async def show_spell_list(show_spells, level: str = '1', school=''):
 
     await show_spells.send(format_spell_list_message(spell_list, level, school))
 
+def format_spell_message(spell): 
+    message = f"Name: {spell['name']} \n"
+    + f"Level: {spell['level']}     Classes: {[str(c['name'] + (',' if c['name'] != spell['classes'].at(-1)['name'] else '')) for c in spell['classes']]}"
+    + f"Range: {spell['range']}     Casting Time: {spell['casting_time']}       Duration: {spell['duration']}\n"
+    + f"Description: {spell['description']} \n"
+    return message
+
 @bot.command(name="spell", help="Displays information of a given spell based on its id (spell name in lowercase, dash-separated. e.g.: disguise-self).")
 async def get_spell(get_spell, spell_id):
     if spell_id is None:
         await get_spell.send("Spell id not informed. Please provide a spell id consisting of the spell's name in lowercase, dash-separated. e.g.: disguise-self).")
     else:
-        response = requests.get(api_endpoint + spell_id)
-        spell = response.json()
+        spell = utils.fetch_resource(f"spells/{spell_id}")
 
-        message = f"Name: {spell['name']} \n"
-        + f"Level: {spell['level']}     Classes: {[str(c['name'] + (',' if c['name'] != spell['classes'].at(-1)['name'] else '')) for c in spell['classes']]}"
-        + f"Range: {spell['range']}     Casting Time: {spell['casting_time']}       Duration: {spell['duration']}\n"
-        + f"Description: {spell['description']} \n"
+        message = format_spell_message(spell)
     
     await get_spell.send(message)
 
 
-@bot.command(name='rspell', help='Shows a random spell of a given class and level (both required).')
-async def choose_random_spell(random_spell, caster='all', level: str = '1'):
-    with open('./spells.json') as spell_list:
-        spells = json.loads(spell_list.read())
-
-    momentary_list = []
-
-    for s in spells['spells']:
-        if (caster in s['level']) and (s['level'][caster] == int(level)):
-            momentary_list.append(s['name'])
-        else:
-            pass
-
-    await random_spell.send('The chosen spell was: ' + random.choice(momentary_list))
+@bot.command(name='rspell', help='Shows a random spell of a given school and level (default level = "1" & school = "illusion").')
+async def choose_random_spell(random_spell, level: str = '1',school='illusion'):
+    spell = utils.fetch_resource(f"spells?level={level}&school={school}")
+    
+    await random_spell.send('The chosen spell was: ' + random.choice(spell["results"]))
 
 bot.run(TOKEN)
