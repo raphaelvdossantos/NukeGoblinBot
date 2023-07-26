@@ -1,5 +1,7 @@
 # Nuke, The Goblin Bot👺
+![Static Badge](https://img.shields.io/badge/Python-logo?logo=python&labelColor=ffd43b&color=306998)
 
+## About Nuke
 This is Nuke, a Goblin bot for Discord servers.
 Nuke is a helpful, friendly, goblin companion for D&D 5e adventures. He can help you in your adventures by quickly providing access to many DnD assets such as spells and... just spells at the moment, and a fumble generator - because of course -, and spin some dice.
 
