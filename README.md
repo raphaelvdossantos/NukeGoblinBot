@@ -14,10 +14,6 @@ But fret not, Goblin is a quick learner and will soon be able to help you with s
 </p>
 <br/>
 
-<p align="center">
-[](https://github.com/raphaelvdossantos/NukeGoblinBot/blob/main/assets/CR-goblin.gif)
-</p>
-
 ## How does it (kinda) work
 
 Nuke has - or will have at some point in the future - memorized all the knowledge provided by the [DnD5e API](https://www.dnd5eapi.co), which has several DND, assets useful for any gameplay.
