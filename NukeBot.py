@@ -87,14 +87,7 @@ async def roll_percent(percent):
 async def roll_luck(luck):
     await luck.send('The coin flipped ' + random.choice(['heads', 'tail']))
 
-def format_spell_list_message(spells = [], level = "1", school = ""):
-    spells_count = len(spells)
-    ordered_level = f"{level}{'st' if int(level) == 1 else 'nd' if int(level) == 2 else 'rd' if int(level )== 3 else 'th'}"
-    school = f"from the {school} school " if school != "" else ""
-    level = f"of {ordered_level} level"
-    message = f"There's a total of {spells_count} {'spells' if spells_count > 1 else 'spell'} {school}{level}:\n" + str('\n'.join(spells))
 
-    return message
 
 @bot.command(name='spells', help='Show a list of spells of a given level (default:1) from a given school.')
 async def show_spell_list(show_spells, level: str = '1', school=''):
@@ -107,14 +100,9 @@ async def show_spell_list(show_spells, level: str = '1', school=''):
     for spell in spells['results']:
         spell_list.append(spell['name'])
 
-    await show_spells.send(format_spell_list_message(spell_list, level, school))
+    await show_spells.send(utils.format_spell_list_message(spell_list, level, school))
 
-def format_spell_message(spell): 
-    message = f"Name: {spell['name']} \n"
-    + f"Level: {spell['level']}     Classes: {[str(c['name'] + (',' if c['name'] != spell['classes'].at(-1)['name'] else '')) for c in spell['classes']]}"
-    + f"Range: {spell['range']}     Casting Time: {spell['casting_time']}       Duration: {spell['duration']}\n"
-    + f"Description: {spell['description']} \n"
-    return message
+
 
 @bot.command(name="spell", help="Displays information of a given spell based on its id (spell name in lowercase, dash-separated. e.g.: disguise-self).")
 async def get_spell(get_spell, spell_id):
@@ -122,8 +110,7 @@ async def get_spell(get_spell, spell_id):
         await get_spell.send("Spell id not informed. Please provide a spell id consisting of the spell's name in lowercase, dash-separated. e.g.: disguise-self).")
     else:
         spell = utils.fetch_resource(f"spells/{spell_id}")
-
-        message = format_spell_message(spell)
+        message = utils.format_spell_message(spell)
     
     await get_spell.send(message)
 
@@ -131,7 +118,7 @@ async def get_spell(get_spell, spell_id):
 @bot.command(name='rspell', help='Shows a random spell of a given school and level (default level = "1" & school = "illusion").')
 async def choose_random_spell(random_spell, level: str = '1',school='illusion'):
     spell = utils.fetch_resource(f"spells?level={level}&school={school}")
-    
-    await random_spell.send('The chosen spell was: ' + random.choice(spell["results"]))
+    chosen_spell = random.choice(spell["results"])
+    await random_spell.send('The chosen spell was: ' + chosen_spell['name'])
 
 bot.run(TOKEN)
