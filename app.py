@@ -43,15 +43,19 @@ async def fumble(fumble_response):
         fumble_list = json.loads(f.read())
 
     fumble_roll = random.randint(1, 100)
+    fumble_lower = 0
+    fumble_upper = 0
 
     for fumble in fumble_list['fumble']:
         if fumble_roll > fumble['value']:
+            fumble_lower = fumble['value']
             pass
         elif fumble_roll <= fumble['value']:
+            fumble_upper = fumble['value']
             message = fumble['effect']
             break
 
-    await fumble_response.send(message)
+    await fumble_response.send(f"[ {fumble_lower}% - {fumble_upper}% ] : {message}")
 
 
 @bot.command(name='roll', help='Rolls a dice or a set of dices N times. It can be used to make multiple rols.\n'
