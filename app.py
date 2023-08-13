@@ -8,8 +8,7 @@ from discord.ext import commands
 from dotenv import load_dotenv
 
 import utils
-import spells
-import rolls
+import classes, feats, features, rolls, spells 
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -97,11 +96,26 @@ async def get_spell(get_spell, spell_id):
     await get_spell.send(message)
 
 
-@bot.command(name='rspell', help='Shows a random spell of a given school and level (default level = "1" & school = "illusion").')
+@bot.command(name='rspell', help='Displays a random spell of a given school and level (default level = "1" & school = "illusion").')
 async def choose_random_spell(random_spell, level: str = '1',school='illusion'):
     chosen_spell = spells.get_random_spell(level, school)
     await random_spell.send('The chosen spell was: ' + chosen_spell['name'])
 
+
+@bot.command(name="classes", help="Displays a list of all classes")
+async def show_class_list(show_classes):
+    class_list = classes.get_class_list()
+    message = utils.format_list_message(class_list)
+
+    await show_classes.send("Classes: \n" + message)
+
+@bot.command(name="class", help="Display information about a class based on its id (the class name in lowercase)")
+async def get_class(get_class, class_id):
+    selected_class = classes.get_class(class_id)
+
+    # Currently displaying the data in JSON format.
+    # TODO: Format the message in a more user friendly way
+    await get_class.send(json.dumps(selected_class))
 
 if __name__ == "__main__":
     bot.run(TOKEN)

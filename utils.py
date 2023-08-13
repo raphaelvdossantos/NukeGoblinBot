@@ -22,3 +22,7 @@ def format_spell_list_message(spells = [], level = "1", school = ""):
     message = f"There's a total of {spells_count} {'spells' if spells_count > 1 else 'spell'} {school}{level}:\n" + str('\n'.join(spells))
 
     return message
+
+def format_list_message(item_list): 
+    message = [f"Class: {item['name']} \n" for item in item_list]
+    return message
